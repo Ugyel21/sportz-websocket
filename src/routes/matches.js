@@ -30,20 +30,30 @@ matchRouter.post('/', async(req, res) => {
         return res.status(400).json({error: 'Invalid payload.', details: JSON.stringify(parsed.error.issues)});
     }
     const { startTime, endTime, homeScore, awayScore } = parsed.data;
+    const startDate = new Date(startTime);
+    const endDate = new Date(endTime);
+    if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())){
+        return res.status(400).json({error: 'Invalid payload.', details: JSON.stringify([{path: ['startTime', 'endTime'], message: 'Invalid datetime values.'}])});
+    }
 
     try{
         const [event] = await db.insert(matches).values({
             ...parsed.data,
-            startTime: new Date(startTime),
-            endTime: new Date(endTime),
+            startTime: startDate,
+            endTime: endDate,
             homeScore: homeScore ?? 0,
             awayScore: awayScore ?? 0,
-            status: getMatchStatus(startTime, endTime),
+            status: getMatchStatus(startDate, endDate),
         }).returning();
+
+        if(res.app.locals.broadcastMatchCreated){
+            res.app.locals.broadcastMatchCreated(event);
+        }
 
         res.status(201).json({data: event});
     }
     catch(e){
-        res.status(500).json({error: 'Failed to create match.', details: JSON.stringify(e)});
+        const message = e?.message ?? String(e);
+        res.status(500).json({error: 'Failed to create match.', details: JSON.stringify({message})});
     }
 })

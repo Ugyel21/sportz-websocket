@@ -1,8 +1,12 @@
 import { MATCH_STATUS} from "../validation/matches.js";
 
+function toDate(value){
+    return value instanceof Date ? value : new Date(value);
+}
+
 export function getMatchStatus(startTime, endTime, now = new Date()){
-    const start = new Date(startTime);
-    const end = new Date(endTime);
+    const start = toDate(startTime);
+    const end = toDate(endTime);
 
     if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())){
         return null;
