@@ -46,13 +46,12 @@ commentaryRouter.post('/', async (req, res) => {
         return res.status(400).json({ error: 'Invalid commentary payload.', details: JSON.stringify(bodyParsed.error.issues) });
     }
 
-    const { minutes, eventType, period, ...rest } = bodyParsed.data;
+    const { minute, minutes, eventType, period, ...rest } = bodyParsed.data;
     const payload = {
         ...rest,
         matchId: paramsParsed.data.id,
-        minute: minutes,
-        eventType,
-        period,
+        minute: minute ?? minutes,
+        period: eventType ?? period,
     };
 
     try {

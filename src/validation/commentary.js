@@ -5,8 +5,9 @@ export const listCommentaryQuerySchema = z.object({
 });
 
 export const createCommentarySchema = z.object({
-    minutes: z.number().int().nonnegative(),
-    sequence: z.number().int().optional(),
+    minute: z.coerce.number().int().nonnegative().optional(),
+    minutes: z.coerce.number().int().nonnegative().optional(),
+    sequence: z.coerce.number().int().optional(),
     period: z.string().optional(),
     eventType: z.string().optional(),
     actor: z.string().optional(),
@@ -14,4 +15,12 @@ export const createCommentarySchema = z.object({
     message: z.string().min(1),
     metadata: z.record(z.string(), z.any()).optional(),
     tags: z.array(z.string()).optional(),
+}).superRefine((data, ctx) => {
+    if (data.minute === undefined && data.minutes === undefined) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'minute is required',
+            path: ['minute'],
+        });
+    }
 });
