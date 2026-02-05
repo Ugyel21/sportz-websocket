@@ -51,7 +51,8 @@ commentaryRouter.post('/', async (req, res) => {
         ...rest,
         matchId: paramsParsed.data.id,
         minute: minutes,
-        period: eventType ?? period,
+        eventType,
+        period,
     };
 
     try {
